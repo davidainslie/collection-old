@@ -39,7 +39,7 @@
     <repositories>
         <repository>
             <id>davidainslie-reflect-old-repo</id>
-            <url>https://github.com/davidainslie/reflect-old</url>
+            <url>https://github.com/davidainslie/reflect-old.git</url>
         </repository>
     </repositories>    
     
@@ -371,7 +371,7 @@
     <distributionManagement>
         <repository>
             <id>repo</id>
-            <url>https://github.com/davidainslie/collection-old</url>
+            <url>https://github.com/davidainslie/collection-old.git</url>
         </repository>
     </distributionManagement>
     
