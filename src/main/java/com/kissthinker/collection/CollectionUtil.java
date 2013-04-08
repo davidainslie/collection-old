@@ -18,9 +18,27 @@ public abstract class CollectionUtil
      */
     public static <O> ArrayList<O> arrayList()
     {
-        return new ArrayList<O>();
+        return new ArrayList<>();
     }
 
+    /**
+     * 
+     * @param objects
+     * @return
+     */
+    @SafeVarargs
+    public static <O> ArrayList<O> arrayList(O... objects)
+    {
+        ArrayList<O> list = new ArrayList<>();
+        
+        for (O object : objects)
+        {
+            list.add(object);
+        }
+        
+        return list;
+    }
+    
     /**
      *
      * @param <O>
@@ -29,7 +47,7 @@ public abstract class CollectionUtil
      */
     public static <O> ArrayList<O> arrayList(Collection<O> source)
     {
-        return new ArrayList<O>(source);
+        return new ArrayList<>(source);
     }
 
     /**
@@ -39,7 +57,7 @@ public abstract class CollectionUtil
      */
     public static <O> CopyOnWriteArrayList<O> copyOnWriteArrayList()
     {
-        return new CopyOnWriteArrayList<O>();
+        return new CopyOnWriteArrayList<>();
     }
 
     /**
