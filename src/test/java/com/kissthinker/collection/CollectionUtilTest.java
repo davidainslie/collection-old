@@ -1,8 +1,11 @@
 package com.kissthinker.collection;
 
 import static com.kissthinker.collection.CollectionUtil.arrayList;
+import static com.kissthinker.collection.CollectionUtil.isEqual;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.junit.Test;
@@ -17,9 +20,59 @@ public class CollectionUtilTest
      * 
      */
     @Test
-    public void listToString()
+    public void arrayListCreation()
+    {
+        List<Integer> integers = arrayList();
+        assertEquals(0, integers.size());
+    }
+    
+    /**
+     * 
+     */
+    @Test
+    public void arrayListFromList()
+    {
+        @SuppressWarnings("serial")
+        List<Integer> list = new ArrayList<Integer>() {{ add(3); add(5); }};
+        
+        List<Integer> integers = arrayList(list);
+        assertEquals(2, integers.size());
+    }
+    
+    /**
+     * 
+     */
+    @Test
+    public void arrayListToString()
     {
         List<Integer> integers = arrayList(1, 3, 5);
         assertEquals("1\n3\n5", CollectionUtil.toString(integers));
+    }
+    
+    /**
+     * 
+     */
+    @Test
+    public void equalArraysInSameOrder()
+    {
+        assertTrue(isEqual(new int[]{7, 9}, new int[]{7, 9}));
+    }
+    
+    /**
+     * 
+     */
+    @Test
+    public void equalArraysInDifferentOrder()
+    {
+        assertTrue(isEqual(new int[]{7, 9}, new int[]{9, 7}));
+    }
+    
+    /**
+     * 
+     */
+    @Test
+    public void equalLists()
+    {
+        assertTrue(isEqual(arrayList(4, 5), arrayList(4, 5)));
     }
 }

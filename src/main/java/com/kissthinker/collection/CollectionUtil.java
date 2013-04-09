@@ -12,16 +12,6 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public abstract class CollectionUtil
 {
     /**
-     *
-     * @param <O>
-     * @return
-     */
-    public static <O> ArrayList<O> arrayList()
-    {
-        return new ArrayList<>();
-    }
-
-    /**
      * 
      * @param objects
      * @return
