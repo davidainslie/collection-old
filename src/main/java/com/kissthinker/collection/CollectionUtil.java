@@ -3,14 +3,26 @@ package com.kissthinker.collection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import com.rits.cloning.Cloner;
 
 /**
  * @author David Ainslie
  */
 public abstract class CollectionUtil
 {
+    public enum Order
+    {
+        /** */
+        MATTERS,
+        
+        /** Default */
+        DOES_NOT_MATTER
+    }
+    
     /**
      * 
      * @param objects
@@ -45,108 +57,141 @@ public abstract class CollectionUtil
      * @param <O>
      * @return
      */
-    public static <O> CopyOnWriteArrayList<O> copyOnWriteArrayList()
-    {
-        return new CopyOnWriteArrayList<>();
+    @SafeVarargs
+    public static <O> CopyOnWriteArrayList<O> copyOnWriteArrayList(O... objects)
+    {        
+        CopyOnWriteArrayList<O> list = new CopyOnWriteArrayList<>();
+        
+        for (O object : objects)
+        {
+            list.add(object);
+        }
+        
+        return list;
     }
 
     /**
-     *
+     * 
+     * @param source
+     * @return
+     */
+    public static <O> CopyOnWriteArrayList<O> copyOnWriteArrayList(Collection<O> source)
+    {
+        return new CopyOnWriteArrayList<>(source);
+    }
+    
+    /**
+     * Order does not matter by default.
      * @param array1
      * @param array2
      * @return
      */
     public static boolean isEqual(int[] array1, int[] array2)
     {
-        if (array1 == null || array2 == null)
-        {
-            return false;
-        }
-
-        Arrays.sort(array1);
-        Arrays.sort(array2);
-
-        return Arrays.equals(array1, array2);
+        return isEqual(Order.DOES_NOT_MATTER, array1, array2);        
     }
 
     /**
-     *
-     * @param <O>
-     * @param list1
-     * @param list2
+     * 
+     * @param order
+     * @param array1
+     * @param array2
      * @return
      */
-    public static <O> boolean isEqual(List<O> list1, List<O> list2)
+    public static boolean isEqual(Order order, int[] array1, int[] array2)
     {
-        if (list1.size() != list2.size())
+        if (array1 == null && array2 == null)
+        {
+            return true;
+        }
+        else if (array1 == null && array2 != null)
+        {
+            return false;
+        }
+        else if (array1 != null && array2 == null)
         {
             return false;
         }
 
-        for (int i = 0; i < list1.size(); i++)
+        int[] array1Local = array1.clone();
+        int[] array2Local = array2.clone();
+        
+        if (Order.DOES_NOT_MATTER == order)
         {
-            if (!list1.get(i).equals(list2.get(i)))
+            Arrays.sort(array1Local);
+            Arrays.sort(array2Local);
+        }
+
+        return Arrays.equals(array1Local, array2Local);
+    }
+    
+    /**
+     * Order does not matter by default.
+     * @param collection1
+     * @param collection2
+     * @return
+     */
+    public static <O> boolean isEqual(Collection<O> collection1, Collection<O> collection2)
+    {
+        return isEqual(Order.DOES_NOT_MATTER, collection1, collection2);
+    }
+    
+    /**
+     *
+     * @param <O>
+     * @param collection1
+     * @param collection2
+     * @return
+     */
+    public static <O> boolean isEqual(Order order, Collection<O> collection1, Collection<O> collection2)
+    {
+        if (collection1 == null && collection2 == null)
+        {
+            return true;
+        }
+        else if (collection1 == null && collection2 != null)
+        {
+            return false;
+        }
+        else if (collection1 != null && collection2 == null)
+        {
+            return false;
+        }
+        else if (collection1.size() != collection2.size())
+        {
+            return false;
+        }
+
+        Cloner cloner = new Cloner();
+        
+        List<O> list1 = arrayList(cloner.deepClone(collection1));
+        List<O> list2 = arrayList(cloner.deepClone(collection2));
+
+        if (Order.MATTERS == order)
+        {
+            for (int i = 0; i < list1.size(); i++)
+            {
+                if (!list1.get(i).equals(list2.get(i)))
+                {
+                    return false;
+                }
+            }
+        }
+        else
+        {
+            for (Iterator<O> i = list1.iterator(); i.hasNext();)
+            {
+                list2.remove(i.next());
+                i.remove();
+            }            
+            
+            if (!list1.isEmpty() || !list2.isEmpty())
             {
                 return false;
             }
         }
 
         return true;
-    }
-
-    /**
-     *
-     * @param ints
-     * @param checkInt
-     * @return
-     */
-    public static boolean contains(int[] ints, int checkInt)
-    {
-        for (int i : ints)
-        {
-            if (i == checkInt)
-            {
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    /**
-     *
-     * @param collection
-     * @return
-     */
-    public static int[] toIntArray(Collection<?> collection)
-    {
-        int[] result = new int[collection.size()];
-        int i = 0;
-
-        for (Object object : collection)
-        {
-            result[i++] = new Integer(object.toString());
-        }
-
-        return result;
-    }
-
-    /**
-     *
-     * @param collection
-     * @return
-     */
-    public static double[] toDoubleArray(Collection<?> collection)
-    {
-        double[] result = new double[collection.size()];
-        int i = 0;
-
-        for (Object object : collection)
-        {
-            result[i++] = new Double(object.toString());
-        }
-
-        return result;
     }
 
     /**
@@ -166,7 +211,7 @@ public abstract class CollectionUtil
         }
         catch (Exception e)
         {
-            newList = new ArrayList<O>();
+            newList = new ArrayList<>();
         }
 
         for (O object : list)
