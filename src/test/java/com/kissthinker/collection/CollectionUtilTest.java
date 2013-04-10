@@ -1,7 +1,9 @@
 package com.kissthinker.collection;
 
 import static com.kissthinker.collection.CollectionUtil.arrayList;
+import static com.kissthinker.collection.CollectionUtil.flatten;
 import static com.kissthinker.collection.CollectionUtil.isEqual;
+import static com.kissthinker.collection.CollectionUtil.removeDuplicates;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -140,5 +142,23 @@ public class CollectionUtilTest
     public void listsInDifferentOrderWhereOrderMattersAreNotEqual()
     {
         assertFalse(isEqual(Order.MATTERS, arrayList(5, 4), arrayList(4, 5)));
+    }
+    
+    /**
+     * 
+     */
+    @Test
+    public void removeDuplictes()
+    {
+        assertEquals(arrayList(1, 3, 5, 7, 8), removeDuplicates(arrayList(1, 3, 5, 3, 3, 7, 8, 1)));
+    }
+    
+    /**
+     * 
+     */
+    @Test
+    public void flattenArrayList()
+    {
+        assertEquals(arrayList(1, 3, 5, 7, 9), flatten(arrayList(1, 3, 5, arrayList(7, 9))));
     }
 }

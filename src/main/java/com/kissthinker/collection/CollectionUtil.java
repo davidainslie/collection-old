@@ -10,10 +10,20 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import com.rits.cloning.Cloner;
 
 /**
+ * Utility for collection functionality.
+ * <br/>
  * @author David Ainslie
  */
 public abstract class CollectionUtil
 {
+    /**
+     * Ordering of collections may matter.
+     * <br/>
+     * This {@link CollectionUtil} takes the unusual approach that the default does not care about ordering.
+     * 
+     * @author David Ainslie
+     *
+     */
     public enum Order
     {
         /** */
@@ -24,9 +34,9 @@ public abstract class CollectionUtil
     }
     
     /**
-     * 
+     * Create an {@link ArrayList} with zero or more "objects".
      * @param objects
-     * @return
+     * @return ArrayList<O>
      */
     @SafeVarargs
     public static <O> ArrayList<O> arrayList(O... objects)
@@ -42,10 +52,10 @@ public abstract class CollectionUtil
     }
     
     /**
-     *
+     * Create an {@link ArrayList} from a given {@link Collection}
      * @param <O>
      * @param source
-     * @return
+     * @return ArrayList<O>
      */
     public static <O> ArrayList<O> arrayList(Collection<O> source)
     {
@@ -53,9 +63,9 @@ public abstract class CollectionUtil
     }
 
     /**
-     *
+     * Create a {@link CopyOnWriteArrayList} with zero or more "objects".
      * @param <O>
-     * @return
+     * @return CopyOnWriteArrayList<O>
      */
     @SafeVarargs
     public static <O> CopyOnWriteArrayList<O> copyOnWriteArrayList(O... objects)
@@ -71,9 +81,9 @@ public abstract class CollectionUtil
     }
 
     /**
-     * 
+     * Create a {@link CopyOnWriteArrayList} from a given {@link Collection}
      * @param source
-     * @return
+     * @return CopyOnWriteArrayList<O>
      */
     public static <O> CopyOnWriteArrayList<O> copyOnWriteArrayList(Collection<O> source)
     {
@@ -84,7 +94,7 @@ public abstract class CollectionUtil
      * Order does not matter by default.
      * @param array1
      * @param array2
-     * @return
+     * @return true if given arrays are equal
      */
     public static boolean isEqual(int[] array1, int[] array2)
     {
@@ -96,7 +106,7 @@ public abstract class CollectionUtil
      * @param order
      * @param array1
      * @param array2
-     * @return
+     * @return true if given arrays are equal
      */
     public static boolean isEqual(Order order, int[] array1, int[] array2)
     {
@@ -129,7 +139,7 @@ public abstract class CollectionUtil
      * Order does not matter by default.
      * @param collection1
      * @param collection2
-     * @return
+     * @return true if given collections are equal
      */
     public static <O> boolean isEqual(Collection<O> collection1, Collection<O> collection2)
     {
@@ -141,7 +151,7 @@ public abstract class CollectionUtil
      * @param <O>
      * @param collection1
      * @param collection2
-     * @return
+     * @return true if given collections are equal
      */
     public static <O> boolean isEqual(Order order, Collection<O> collection1, Collection<O> collection2)
     {
@@ -195,79 +205,83 @@ public abstract class CollectionUtil
     }
 
     /**
-     *
-     * @param <O>
-     * @param list
-     * @return
+     * Remove duplicates from given collection
+     * @param collection
+     * @return C collection without duplicates
      */
-    @SuppressWarnings("unchecked")
-    public static <O> List<O> removeDuplicates(List<O> list)
-    {
-        List<O> newList = null;
-
+    public static <C extends Collection<O>, O> C removeDuplicates(C collection)
+    {        
         try
         {
-            newList = list.getClass().newInstance();
+            @SuppressWarnings("unchecked")
+            C newCollection = (C)collection.getClass().newInstance();
+            
+            for (O object : collection)
+            {
+                if (!newCollection.contains(object))
+                {
+                    newCollection.add(object);
+                }
+            }
+            
+            return newCollection;
         }
         catch (Exception e)
         {
-            newList = new ArrayList<>();
+            return collection;
         }
-
-        for (O object : list)
-        {
-            if (!newList.contains(object))
-            {
-                newList.add(object);
-            }
-        }
-
-        return newList;
     }
 
     /**
-     * Flatten a given list.
-     * If the given list is just a list of O, then nothing happens and the original is returned.
-     * If the given list contains lists (which in turn may contain lists) then a new ArrayList<O> is returned with the nesting of lists removed.
-     * @param <O>
-     * @param list
-     * @return
+     * Flatten a given collection i.e. nested collections are flatten to produce just one level within a collection
+     * @param collection
+     * @return C
      */
     @SuppressWarnings("unchecked")
-    public static <O> List<O> flatten(List<?> list)
+    public static <C extends Collection<O>, O> C flatten(Collection<?> collection)
     {
         boolean flattened = false;
-        List<O> flattenedList = new ArrayList<O>();
-
-        for (Object object : list)
+        
+        C flattenedCollection = null;
+        
+        try
         {
-            if (object instanceof List<?>)
+            flattenedCollection = (C)collection.getClass().newInstance();
+
+            for (Object object : collection)
             {
-                flattened = true;
-                List<O> nestedList = flatten((List<?>)object);
-                flattenedList.addAll(nestedList);
+                if (object instanceof Collection<?>)
+                {
+                    flattened = true;
+                    C nestedCollection = flatten((Collection<?>)object);
+                    flattenedCollection.addAll(nestedCollection);
+                }
+                else
+                {
+                    flattenedCollection.add((O)object);
+                }
             }
-            else
-            {
-                flattenedList.add((O)object);
-            }
+        }
+        catch (Exception e)
+        {
+            
         }
 
         if (flattened)
         {
-            return flattenedList;
+            return flattenedCollection;
         }
         else
         {
-            return (List<O>)list;
+            return (C)collection;
         }
     }
-
+    
     /**
-     *
+     * Turn varargs of objects into a list
      * @param <O>
      * @param objects
-     * @return
+     * @return List<O>
      */
     @SafeVarargs
     public static <O> List<O> asList(O... objects)
@@ -279,7 +293,7 @@ public abstract class CollectionUtil
      *
      * @param <O>
      * @param objects
-     * @return
+     * @return String
      */
     @SafeVarargs
     public static <O> String toString(O... objects)
@@ -291,9 +305,9 @@ public abstract class CollectionUtil
      *
      * @param <O>
      * @param objects
-     * @return
+     * @return Sting
      */
-    public static <O> String toString(List<O> objects)
+    public static <O> String toString(Collection<O> objects)
     {
         StringBuilder stringBuilder = new StringBuilder();
 
